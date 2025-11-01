@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Validator | @Mg_Prime_1</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.4;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 16px 0;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #999999;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e1e3e6;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2481cc;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #2481cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #e1e3e6;
+        }
+
+        .email-info {
+            flex: 1;
+        }
+
+        .result-email {
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .result-type {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-valid {
+            background: #00b894;
+            color: white;
+        }
+
+        .badge-invalid {
+            background: #e17055;
+            color: white;
+        }
+
+        .result-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #2481cc;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .valid {
+            color: #00b894;
+        }
+
+        .invalid {
+            color: #e17055;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2481cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .raw-response {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .response-key {
+            color: #74b9ff;
+            font-weight: bold;
+        }
+
+        .response-value {
+            color: #55efc4;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #2481cc;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .no-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #2481cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📧 Email Validator</h1>
+            <p>Check email validity and information</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="card">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    class="form-input" 
+                    id="emailInput"
+                    placeholder="Enter email address"
+                    value="example@gmail.com"
+                >
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox" id="useCredit">
+                    <label class="form-label">Use credit first</label>
+                </div>
+            </div>
+
+            <button class="btn" id="validateBtn">
+                <span>Check Email</span>
+            </button>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message" style="display: none;">
+            <div class="loading"></div>
+            <span>Checking email...</span>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <div class="card">
+                <!-- Tab Buttons -->
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="summary">Summary</button>
+                    <button class="tab-btn" data-tab="raw">Raw Response</button>
+                </div>
+
+                <!-- Summary Tab -->
+                <div class="tab-content active" id="tab-summary">
+                    <div class="result-header">
+                        <div id="avatarContainer">
+                            <!-- Avatar will be inserted here -->
+                        </div>
+                        <div class="email-info">
+                            <div class="result-email" id="resultEmail"></div>
+                            <div class="result-type" id="resultType"></div>
+                        </div>
+                        <div class="result-badge" id="resultBadge">VALID</div>
+                    </div>
+                    
+                    <div class="result-details" id="resultDetails">
+                        <!-- Results will be shown here -->
+                    </div>
+                </div>
+
+                <!-- Raw Response Tab -->
+                <div class="tab-content" id="tab-raw">
+                    <div class="raw-response" id="rawResponse">
+                        <!-- Raw JSON response will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            Error message will appear here
+        </div>
+    </div>
+
+    <script>
+        // Get HTML elements
+        const emailInput = document.getElementById('emailInput');
+        const useCreditCheckbox = document.getElementById('useCredit');
+        const validateBtn = document.getElementById('validateBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultEmail = document.getElementById('resultEmail');
+        const resultType = document.getElementById('resultType');
+        const resultBadge = document.getElementById('resultBadge');
+        const resultDetails = document.getElementById('resultDetails');
+        const avatarContainer = document.getElementById('avatarContainer');
+        const rawResponse = document.getElementById('rawResponse');
+        const errorMessage = document.getElementById('errorMessage');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            });
+        });
+
+        // When Validate button is clicked
+        validateBtn.addEventListener('click', async function() {
+            const email = emailInput.value.trim();
+            const useCredit = useCreditCheckbox.checked;
+
+            // Check if email is entered
+            if (!email) {
+                showError('Please enter an email address');
+                return;
+            }
+
+            // Check if email format is valid
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            // Start validation
+            startValidation();
+
+            try {
+                // Call validation API
+                const result = await validateEmailAPI(email, useCredit);
+                
+                // Show results
+                showResults(email, result);
+                
+            } catch (error) {
+                showError('Validation failed: ' + error.message);
+            }
+        });
+
+        // Simple email format check
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Show loading state
+        function startValidation() {
+            statusMessage.style.display = 'block';
+            resultsSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+            validateBtn.disabled = true;
+            validateBtn.innerHTML = '<div class="loading"></div><span>Checking...</span>';
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            resultsSection.style.display = 'none';
+            statusMessage.style.display = 'none';
+            validateBtn.disabled = false;
+            validateBtn.innerHTML = '<span>Check Email</span>';
+        }
+
+        // Show results
+        function showResults(email, result) {
+            statusMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            resultsSection.style.display = 'block';
+            validateBtn.disabled = false;
+            validateBtn.innerHTML = '<span>Check Email</span>';
+
+            // Set email
+            resultEmail.textContent = email;
+
+            // Set email type
+            resultType.textContent = result.type || 'Unknown';
+
+            // Set badge based on status
+            if (result.status === 'Ok') {
+                resultBadge.className = 'result-badge badge-valid';
+                resultBadge.textContent = 'VALID';
+            } else {
+                resultBadge.className = 'result-badge badge-invalid';
+                resultBadge.textContent = 'INVALID';
+            }
+
+            // Show avatar
+            showAvatar(result.avatar);
+
+            // Show summary details
+            showSummary(result);
+            
+            // Show raw response
+            showRawResponse(result);
+        }
+
+        // Show avatar
+        function showAvatar(avatarUrl) {
+            avatarContainer.innerHTML = '';
+            
+            if (avatarUrl && avatarUrl !== 'null') {
+                const img = document.createElement('img');
+                img.className = 'avatar';
+                img.src = avatarUrl;
+                img.alt = 'Profile Avatar';
+                img.onerror = function() {
+                    // If image fails to load, show default avatar
+                    showDefaultAvatar();
+                };
+                avatarContainer.appendChild(img);
+            } else {
+                showDefaultAvatar();
+            }
+        }
+
+        // Show default avatar
+        function showDefaultAvatar() {
+            avatarContainer.innerHTML = `
+                <div class="no-avatar">
+                    <span>📧</span>
+                </div>
+            `;
+        }
+
+        // Show summary results
+        function showSummary(result) {
+            resultDetails.innerHTML = '';
+            
+            const details = [
+                { 
+                    label: 'Email Type', 
+                    value: result.type || 'Unknown',
+                    valid: true 
+                },
+                { 
+                    label: 'Disposable', 
+                    value: result.disposable || 'Unknown',
+                    valid: result.disposable === 'No' 
+                },
+                { 
+                    label: 'Status', 
+                    value: result.status || 'Unknown',
+                    valid: result.status === 'Ok' 
+                },
+                { 
+                    label: 'Has Avatar', 
+                    value: result.avatar && result.avatar !== 'null' ? 'Yes' : 'No',
+                    valid: true 
+                }
+            ];
+
+            details.forEach(detail => {
+                const item = document.createElement('div');
+                item.className = 'detail-item';
+                
+                item.innerHTML = `
+                    <span class="detail-label">${detail.label}</span>
+                    <span class="detail-value ${detail.valid ? 'valid' : 'invalid'}">
+                        ${detail.value}
+                    </span>
+                `;
+                
+                resultDetails.appendChild(item);
+            });
+        }
+
+        // Show raw JSON response with syntax highlighting
+        function showRawResponse(result) {
+            if (!result) {
+                rawResponse.textContent = 'No response data available';
+                return;
+            }
+
+            const formattedJSON = formatJSON(result);
+            rawResponse.innerHTML = formattedJSON;
+        }
+
+        // Format JSON with syntax highlighting
+        function formatJSON(obj) {
+            const jsonString = JSON.stringify(obj, null, 2);
+            return jsonString
+                .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, (match) => {
+                    let cls = 'response-value';
+                    if (/:$/.test(match)) {
+                        cls = 'response-key';
+                    }
+                    return `<span class="${cls}">${match}</span>`;
+                })
+                .replace(/\n/g, '<br>')
+                .replace(/ /g, '&nbsp;');
+        }
+
+        // API call to validate email
+        async function validateEmailAPI(email, useCredit) {
+            // First API call to get payload
+            const payloadUrl = `https://ychecker.com/app/payload?email=${encodeURIComponent(email)}&use_credit_first=${useCredit ? '1' : '0'}`;
+            
+            console.log('Calling YChecker API...');
+            const payloadResponse = await fetch(payloadUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 Telegram WebApp',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!payloadResponse.ok) {
+                throw new Error(`YChecker API failed: ${payloadResponse.status}`);
+            }
+
+            const payloadData = await payloadResponse.json();
+            console.log('YChecker response:', payloadData);
+            
+            const encryptedPayload = payloadData.items;
+
+            if (!encryptedPayload) {
+                throw new Error('No payload received from YChecker');
+            }
+
+            // Second API call to validate
+            const validateUrl = `https://api.sonjj.com/v1/check_email/?payload=${encodeURIComponent(encryptedPayload)}`;
+            
+            console.log('Calling validation API...');
+            const validateResponse = await fetch(validateUrl, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!validateResponse.ok) {
+                throw new Error(`Validation API failed: ${validateResponse.status}`);
+            }
+
+            const validateData = await validateResponse.json();
+            console.log('Validation response:', validateData);
+            
+            return validateData;
+        }
+
+        // Initialize Telegram Web App
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+        }
+    </script>
+</body>
+</html>
